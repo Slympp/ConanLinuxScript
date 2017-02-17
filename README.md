@@ -3,11 +3,11 @@
 Made by Slymp, with and for the Conan Exiles community
 
  * (WIP) install   : Installs the whole stuff
- 					* creates specific user
- 					* set up basic iptables
- 					* install screen, wine 2.0, steamCmd
- 					* download server files
- 					* configure crontab for auto-restart/update
+     * creates specific user
+     * set up basic iptables
+     * install screen, wine 2.0, steamCmd 
+     * download server files
+     * configure crontab for auto-restart/update
 
  * start           : Starts server. Checks for servers already running
  * stop            : Stops safely servers by sending a SIGINT
