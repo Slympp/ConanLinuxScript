@@ -3,10 +3,6 @@
 # Script made by Slymp for Akylonia.net
 # Join us on discord.gg/7zbWQzU
 
-ScriptVersion=1
-RED='\033[0;31m'
-NC='\033[0m'
-
 # /Path/To/Folder
 user=steam
 ConanPath=/home/$user/ConanServer
@@ -18,6 +14,13 @@ Server_Name="[EU/FR] Akylonia.net | XP x2 | NoRules | Wipe 17.02"
 
 # Leaves "" if you don't want to use a password
 Server_Password=""
+
+
+ScriptVersion=3
+RED='\033[0;31m'
+NC='\033[0m'
+
+#########################################################
 
 function conan_start {
 
@@ -129,7 +132,6 @@ echo -e "${RED}Installing screen...\n${NC}"
 sudo apt-get install screen
 
 echo -e "${RED}\nUpdating repository...${NC}"
-#TODO: decommente all
 #sudo add-apt-repository ppa:ricotz/unstable
 #sudo apt remove wine wine1.8 wine-stable libwine* fonts-wine* && sudo apt autoremove
 #sudo apt update
@@ -149,14 +151,18 @@ if [ -n "$SteamCmdPath" ]; then
 	read SteamCmdPath
 fi
 
+#TODO: Add check and loop on SteamCmdPath input
+
 if  [ ! -f "$SteamCmdPath/steamcmd.sh" ]; then
 	echo -e "\n$SteamCmdPath seems not to exist." 
 	read -r -p "Do you want to install SteamCMD ? [y/N] " response
 	case "$response" in
     	[yY][eE][sS]|[yY]) 
-			su -c "mkdir -p $SteamCmdPath" -m $user
 			echo -e "${RED}\nDownloading SteamCMD...${NC}"
-        	sudo runuser -l $user -c 'cd /home/steam/steamcmd/ && wget https://steamcdn-a.akamaihd.net/client/installer/steamcmd_linux.tar.gz && tar -xvzf steamcmd_linux.tar.gz && rm -rf steamcmd_linux.tar.gz'
+			# TODO : Find a way to switch user easily
+			#su -m $user -c "mkdir -p $SteamCmdPath"
+			#cd $SteamCmdPath
+        	#sudo runuser -l $user -c "wget https://steamcdn-a.akamaihd.net/client/installer/steamcmd_linux.tar.gz && tar -xvzf steamcmd_linux.tar.gz && rm -rf steamcmd_linux.tar.gz"
        		;;
 
        	*)
@@ -174,43 +180,41 @@ echo -e "\nYour Conan Exiles server is now fully installed. You can use ${RED}\"
 
 function conan_crontab {
 
-	echo -e "[?] Do you want to add crontabs in order to automate restarts and Steam updates ? [y/N]"
-	read -n wantCrontab
+	tmp=crontab_tmp
+	re='^[0-9]+$'
+	user=steam
 
-	# TODO: don't work
-	echo -e "${RED}DEBUG> wantCrontab: $wantCrontab ${NC}\n"
-	if [ "$wantCrontab" -eq "N" ]
-	then
-		exit 1
-	else
-		echo -e "Enable ${RED}auto-restart${NC} ? (checks if there's no server running and start if needed). Enter a number of minutes between checks (0 to disable)"
-		read -n restartTime
+	cd $SteamCmdPath
 
-		# TODO: check format
-		if [ ! -n "$restartTime" ]; then
-			restartTime=5
-			echo -e "Invalid value. Set${RED} $restartTime ${NC}mn by default"
-		fi
+	echo -e "Enable ${RED}auto-restart${NC} ? (checks if there's no server running and start if needed). Enter a number of minutes between checks (0 to disable)"
+	read restartTime
 
-		if [ ! "$restartTime" -eq 0 ]; then
-			echo -e "${RED}Crontab:${NC} */$restartTime * * * * conan start"
-			(crontab -l ; echo "*/$restartTime * * * * conan start") | sort - | uniq - | crontab -
-		fi
+	if ! [[ $restartTime =~ $re ]]; then
+		restartTime=5
+		echo -e "Invalid value. Set${RED} $restartTime ${NC}mn by default"
+	fi
+	
+	if [ ! "$restartTime" -eq 0 ]; then
+		echo -e "${RED}Crontab:${NC} */$restartTime * * * * conan start"
+	# 	To fix
+	#	su -m $user -c "touch $tmp && crontab -l > $tmp && echo "*/$restartTime * * * * conan start" >> $tmp && crontab $tmp && rm -rf $tmp"
+	fi
 
-		echo -e "Enable ${RED}auto-updater${NC} ? (checks for update and if needed, apply and restart server). Enter a number of minutes between checks (0 to disable)"
-		read -n updateTime
+	
+	echo -e "Enable ${RED}auto-updater${NC} ? (checks for update and if needed, apply and restart server). Enter a number of minutes between checks (0 to disable)"
+	read updateTime
 
-		# TODO: check format
-		if [ ! -n "$updateTime" ]; then
-			updateTime=10
-			echo -e "Invalid value. Set${RED} $updateTime ${NC}mn by default"
-		fi
+	if ! [[ $updateTime =~ $re ]]; then
+		updateTime=10
+		echo -e "Invalid value. Set${RED} $updateTime ${NC}mn by default"
+	fi
 
-		if [ ! "$updateTime" -eq 0 ]; then
-			echo -e "${RED}Crontab:${NC} */$updateTime * * * * conan update"
-			(crontab -l ; echo "*/$updateTime * * * * conan update") | sort - | uniq - | crontab -
-	    fi
-fi
+	if [ ! "$updateTime" -eq 0 ]; then
+		echo -e "${RED}Crontab:${NC} */$updateTime * * * * conan update"
+	# 	To fix
+	#	su -m $user -c "touch $tmp && crontab -l > $tmp && echo "*/$updateTime * * * * conan update" >> $tmp && crontab $tmp && rm -rf $tmp"
+	fi
+
 }
 
 function indent { sed -e 's/^/\t/'; }
