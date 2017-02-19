@@ -13,3 +13,10 @@ Made by Slymp, with and for the Conan Exiles community
      * install screen, wine 2.0, steamCmd
      * download server files
  * crontab: Allows to enable crontab for auto-restart/update
+ * discord: Install a Discord Bot which will announce server status
+
+# Changelog
+
+Version 6
+ * Add a Discord Bot announcer
+ * Fix some prompts
