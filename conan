@@ -270,15 +270,17 @@ function conan_discord {
 	echo -e "Installing ${RED}Discord Bot${NC}. Before continuing, create a Discord Bot and add it on your server by following this tutorial: "
 	echo -e "${RED}https://github.com/reactiflux/discord-irc/wiki/Creating-a-discord-bot-&-getting-a-token${NC}"
 
-	if [ -z "$botToken" ]
+	if [ -z "$botToken" ]; then
 		echo -e "Please insert your ${RED}botToken: ${NC}"
 		read botToken
 		echo -e "Don't forget to set it in conan script"
+	fi
 
-	if [ -z "$channelID"]
+	if [ -z "$channelID"]; then
 		echo -e "Please insert your ${RED}channelID: ${NC}"
 		read channelID
 		echo -e "Don't forget to set it in conan script"
+	fi
 
 	echo -e "${RED}\nInstalling Python3...${NC}"
 	sudo apt-get install python3 python3-pip
