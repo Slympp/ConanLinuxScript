@@ -112,9 +112,11 @@ if [ "$currentTimestamp" -gt "$lastTimestamp" ]; then
 	echo "[V] New update found"
 
 	if [ "$discordBotEnable" = true]; then
-		if  [ -n  "$botToken" ] && [ -n $"channelID" ]; then
-			python3
+		echo "[V] Discord Bot is enable"
+		if [ -n "$botToken" ] && [ -n "$channelID"]; then
+			python3 $discordScript $botToken $channelID "@everyone A new official update have been found."
 		else
+			echo "[X] No Discord botToken or channelID found."
 		fi
 	fi
     	stop
