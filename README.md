@@ -15,6 +15,19 @@ Made by Slymp, with and for the Conan Exiles community
  * crontab: Allows to enable crontab for auto-restart/update
  * discord: Install a Discord Bot which will announce server status
 
+# Installation
+
+git clone
+conan install
+cp conan & script python dans /home/$user
+su steam
+conan start
+
+# Known issues
+
+Cannot open your terminal '/dev/pts/7' - please check.
+=> script /dev/null
+
 # Changelog
 
 Version 6

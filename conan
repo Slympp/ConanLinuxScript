@@ -18,13 +18,13 @@ Server_Name="[EU/FR] Akylonia.net | XP x2 | NoRules | Wipe 17.02"
 Server_Password="" # Leaves "" if you don't want to use a password
 
 # Discord Bot configuration
-discordBotEnable=false
-botToken=
-channelID=
+discordBotEnable=true
+botToken=""
+channelID=""
 announceTimer=2 # in minutes
 
 # Do not modify
-ScriptVersion=6
+ScriptVersion=7
 RED='\033[0;31m'
 NC='\033[0m'
 
@@ -44,14 +44,16 @@ echo "Starting server..."
 isServerDown=$(ps axf | grep ConanSandboxServer-Win64-Test.exe | grep -v grep)
 
 if [ -z "$isServerDown" ]; then
-	screen -dmS conan bash -c 'wine "$ConanPath/ConanSandboxServer.exe" "ConanSandbox?MULTIHOME=$IP?listen?" -log -Port="$Port" -QueryPort="$QueryPort" -ServerName=$Server_Name -ServerPassword=$Server_Password'
+	echo "screen -dmS conan bash -c 'wine \"$ConanPath/ConanSandboxServer.exe\" \"ConanSandbox?MULTIHOME=$IP?listen?\" -log -Port=\"$Port\" -QueryPort=\"$QueryPort\" -ServerName=$Server_Name -ServerPassword=$Server_Password'"
+	screen -dmS conan bash -c 'wine \"$ConanPath/ConanSandboxServer.exe\" \"ConanSandbox?MULTIHOME=$IP?listen?\" -log -Port=\"$Port\" -QueryPort=\"$QueryPort\" -ServerName=\"$Server_Name\" -ServerPassword=$Server_Password'
 	echo "[V] Server is now up"
 	echo "Use \"conan screen\" to watch logs"
 
-	if [ $discordBotEnable = true]; then
+	if [ $discordBotEnable = true ]; then
 		echo "[V] Discord Bot is enable"
-		if [ -n "$botToken" ] && [ -n "$channelID"]; then
-			python3 $discordScript $botToken $channelID "The server is being launched and will be available in a few moments"
+		if [ -n "$botToken" ] && [ -n "$channelID" ]; then
+			echo "python3 $discordScript $botToken $channelID \"The server is being launched and will be available in a few moments\""
+			sudo python3 $discordScript $botToken $channelID "The server is being launched and will be available in a few moments"
 		else
 			echo "[X] No Discord botToken or channelID found."
 		fi
@@ -70,12 +72,12 @@ if [ -z "$pid" ]; then
 else
 		if [ "$discordBotEnable" = true ]; then
 			echo "[V] Discord Bot is enable"
-			if [ -n "$botToken" ] && [ -n "$channelID"]; then
-				secLeft = $announceTimer * 60
+			if [ -n "$botToken" ] && [ -n "$channelID" ]; then
+				secLeft=$($announceTimer*60)
 
-				while [ "$secLeft" -gt "0" ]; do
-					minLeft=$secLeft / 60
-					python3 $discordScript $botToken $channelID "The server will be shut down in" $minLeft "minutes."
+				while [ $secLeft -gt "0" ]; do
+					minLeft=$($secLeft/60)
+					sudo python3 $discordScript $botToken $channelID "The server will be shut down in" $minLeft "minutes."
 					secLeft-=60
 					sleep 60
 				done	
@@ -111,10 +113,10 @@ lastTimestamp=$(cat $ConanPath/lastUpdate)
 if [ "$currentTimestamp" -gt "$lastTimestamp" ]; then
 	echo "[V] New update found"
 
-	if [ "$discordBotEnable" = true]; then
+	if [ "$discordBotEnable" = true ]; then
 		echo "[V] Discord Bot is enable"
-		if [ -n "$botToken" ] && [ -n "$channelID"]; then
-			python3 $discordScript $botToken $channelID "@everyone A new official update have been found."
+		if [ -n "$botToken" ] && [ -n "$channelID" ]; then
+			sudo python3 $discordScript $botToken $channelID "@everyone A new official update have been found."
 		else
 			echo "[X] No Discord botToken or channelID found."
 		fi
@@ -135,12 +137,12 @@ fi
 
 function conan_show {
 
-exec screen -ls
+screen -ls
 }
 
 function conan_screen {
 
-exec screen -r $1
+screen -r $1
 }
 
 function conan_install {
@@ -156,7 +158,7 @@ fi
 
 while [ -z "$(getent passwd $user)" ]; do
 	sudo adduser $user
-	if [ -z "$(getent passwd $user)"]; then
+	if [ -z "$(getent passwd $user)" ]; then
 		echo -e "${RED}Creation failed, try again${NC}\n"
 	fi
 done
@@ -165,9 +167,9 @@ echo -e "${RED}User \"$user\" found...${NC}\n"
 
 echo -e "${RED}[SKIP] Setting up iptables...${NC}\n"
 
-iptables -t filter -I INPUT -p udp --dport $Port -j ACCEPT
-iptables -t filter -I INPUT -p udp --dport $QueryPort -j ACCEPT
-iptables -t filter -I INPUT -p udp --dport 7778 -j ACCEPT
+sudo iptables -t filter -I INPUT -p udp --dport $Port -j ACCEPT
+sudo iptables -t filter -I INPUT -p udp --dport $QueryPort -j ACCEPT
+sudo iptables -t filter -I INPUT -p udp --dport 7778 -j ACCEPT
 
 
 echo -e "${RED}Installing screen...\n${NC}"
@@ -179,7 +181,7 @@ sudo apt remove wine wine1.8 wine-stable libwine* fonts-wine* && sudo apt autore
 sudo apt update
 
 echo -e "${RED}\nInstalling wine2.0...${NC}"
-sudo apt install wine2.0
+sudo apt install wine2.0 wine-gecko*
 
 dpkg-query -l wine2.0
 if [ $? -eq 1 ]; then
@@ -207,7 +209,7 @@ if  [ ! -f "$SteamCmdPath/steamcmd.sh" ]; then
 			echo -e "${RED}Exiting installation...${NC}"
 			exit 1
 			;;
-	esac		
+	esac
 fi
 
 echo -e "\n${RED}Downloading lastest version of Conan Exiles Server...${NC}"
@@ -238,7 +240,7 @@ function conan_crontab {
 		restartTime=5
 		echo -e "Invalid value. Set${RED} $restartTime ${NC}mn by default"
 	fi
-	
+
 	if [ ! "$restartTime" -eq 0 ]; then
 		echo -e "${RED}Crontab:${NC} */$restartTime * * * * conan start"
 		sudo crontab -u $user -l > $tmp
@@ -246,7 +248,7 @@ function conan_crontab {
 		sudo crontab -u $user $tmp
 		sudo rm $tmp
 	fi
-	
+
 	echo -e "Enable ${RED}auto-updater${NC} ? (checks for update and if needed, apply and restart server). Enter a number of minutes between checks (0 to disable)"
 	read updateTime
 
@@ -274,9 +276,9 @@ function conan_discord {
 		echo -e "Please insert your ${RED}botToken: ${NC}"
 		read botToken
 		echo -e "Don't forget to set it in conan script"
-	fi
+	filter
 
-	if [ -z "$channelID"]; then
+	if [ -z "$channelID" ]; then
 		echo -e "Please insert your ${RED}channelID: ${NC}"
 		read channelID
 		echo -e "Don't forget to set it in conan script"
@@ -286,12 +288,11 @@ function conan_discord {
 	sudo apt-get install python3 python3-pip
 
 	echo -e "${RED}\nInstalling Python3/Discord requirements...${NC}"
-	python3 -m pip install --upgrade pip
-	python3 -m pip install websockets aiohttp
-	python3 -m pip install -U discord.py
+	sudo python3 -m pip install --upgrade pip
+	sudo python3 -m pip install -U discord.py
 
 	echo -e "${RED}\nTesting configuration...${NC}"
-	python3 $discordScript $botToken $channelID "Hello" "World" "-" "Configuration SUCCESS"
+	sudo python3 $discordScript $botToken $channelID "Hello" "World" "-" "Configuration SUCCESS"
 }
 
 function indent { sed -e 's/^/\t/'; }
@@ -304,7 +305,7 @@ echo -e "Join us on ${RED}http://akylonia.net${NC} or ${RED}discord.gg/7zbWQzU${
 
 echo -e "\nAvailable commands:"
 echo -e "start\t\t: Starts server. Checks for servers already running" | indent
-echo -e "stop\t\t: Stops safely servers by sending a SIGINT" | indent
+echo -e "stop\t\t: Safely stops servers by sending a SIGINT" | indent
 echo -e "update\t\t: Apply a pending update. Closes and restarts the servers properly" | indent
 echo -e "show\t\t: Display running servers and their id" | indent
 echo -e "screen [id]\t: Display console. Use ${RED}\"Ctrl + A D\"${NC} to quit the screen without shutting down the server" | indent

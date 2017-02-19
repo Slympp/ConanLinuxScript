@@ -22,7 +22,7 @@ async def on_ready():
 			message += x + ' '
 		POSTedJSON =  json.dumps ( {"content":message} )
 		r = requests.post(baseURL, headers = headers, data = POSTedJSON)
-	else
+	else:
 		print('Error. Usage: script.py <botToken> <channelID> <msg> [<msg n>]')
 	quit()
 
