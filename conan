@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Script made by Slymp for Akylonia.net
 # Join us on discord.gg/7zbWQzU
@@ -112,10 +112,12 @@ if [ "$currentTimestamp" -gt "$lastTimestamp" ]; then
 	echo "[V] New update found"
 
 	if [ "$discordBotEnable" = true]; then
-
+		if  [ -n  "$botToken" ] && [ -n $"channelID" ]; then
+			python3
+		else
+		fi
 	fi
-    stop
-	
+    	stop
 	echo "Deleting appcache..."
 	rm -rf $SteamPath/appcache/
 	$SteamCmdPath/steamcmd.sh +@sSteamCmdForcePlatformType windows +force_install_dir $ConanPath +login anonymous +app_update 443030 validate +quit
