@@ -8,20 +8,19 @@ user="steam"
 ConanPath="/home/$user/ConanServer"
 SteamCmdPath="/home/$user/steamcmd"
 SteamPath="/home/$user/Steam"
-discordScript="discord_bot_main.py"
+discordScript="discord_bot.py"
 
 # Server configuration
-IP="37.59.45.211"
+IP="YourIp"
 Port="7777"
 QueryPort="27015"
-Server_Name="[EU/FR] Akylonia.net | XP x2 | NoRules | Wipe 17.02"
-Server_Password="" # Leaves "" if you don't want to use a password
+Server_Name="YourServerName"
 
 # Discord Bot configuration
-discordBotEnable=true
+discordBotEnable=false
 botToken=""
 channelID=""
-announceTimer=2 # in minutes
+announceTimer=5 # in minutes
 
 # Do not modify
 ScriptVersion=7
@@ -30,13 +29,6 @@ NC='\033[0m'
 
 #########################################################
 
-if [ -f "/bin/conan" ]; then
-	mypwd=$(pwd)
-	echo -e "Creating symbolic link: ${RED}\"ln -s $mypwd/conan /bin/conan\"${NC}\n"
-	echo -e "You can now use \"conan <cmd>\" everywhere"
-	sudo ln -s conan /bin/conan
-fi
-
 function conan_start {
 
 echo "Starting server..."
@@ -44,23 +36,40 @@ echo "Starting server..."
 isServerDown=$(ps axf | grep ConanSandboxServer-Win64-Test.exe | grep -v grep)
 
 if [ -z "$isServerDown" ]; then
-	echo "screen -dmS conan bash -c 'wine \"$ConanPath/ConanSandboxServer.exe\" \"ConanSandbox?MULTIHOME=$IP?listen?\" -log -Port=\"$Port\" -QueryPort=\"$QueryPort\" -ServerName=$Server_Name -ServerPassword=$Server_Password'"
-	screen -dmS conan bash -c 'wine \"$ConanPath/ConanSandboxServer.exe\" \"ConanSandbox?MULTIHOME=$IP?listen?\" -log -Port=\"$Port\" -QueryPort=\"$QueryPort\" -ServerName=\"$Server_Name\" -ServerPassword=$Server_Password'
+	screen -dmS conan bash -c "wine $ConanPath/ConanSandboxServer.exe ConanSandbox?MULTIHOME=$IP?listen? -log -Port=$Port -QueryPort=$QueryPort -ServerName=$Server_Name"
 	echo "[V] Server is now up"
 	echo "Use \"conan screen\" to watch logs"
 
 	if [ $discordBotEnable = true ]; then
 		echo "[V] Discord Bot is enable"
 		if [ -n "$botToken" ] && [ -n "$channelID" ]; then
-			echo "python3 $discordScript $botToken $channelID \"The server is being launched and will be available in a few moments\""
-			sudo python3 $discordScript $botToken $channelID "The server is being launched and will be available in a few moments"
+			python3 $discordScript $botToken $channelID "The server is being launched and will be available in a few moments."
 		else
-			echo "[X] No Discord botToken or channelID found."
+			echo "[X] No Discord botToken or channelID found"
 		fi
 	fi
 else
 	echo "[X] Server is already up, no restart required"
 fi
+}
+
+function conan_reboot {
+
+	if [ $discordBotEnable = true ]; then
+		echo "[V] Discord Bot is enable"
+		if [ -n "$botToken" ] && [ -n "$channelID" ]; then
+			if [ -n "$1" ]; then
+				python3 $discordScript $botToken $channelID "@everyone The server is going to reboot. Reason: $1."
+			else
+				python3 $discordScript $botToken $channelID "@everyone The server is going to reboot."
+			fi
+		else
+			echo "[X] No Discord botToken or channelID found"
+		fi
+	fi
+	echo "[V] Server is going to reboot"
+	conan_stop
+	conan_start
 }
 
 function conan_stop {
@@ -73,23 +82,24 @@ else
 		if [ "$discordBotEnable" = true ]; then
 			echo "[V] Discord Bot is enable"
 			if [ -n "$botToken" ] && [ -n "$channelID" ]; then
-				secLeft=$($announceTimer*60)
+				secLeft=$(($announceTimer * 60))
 
 				while [ $secLeft -gt "0" ]; do
-					minLeft=$($secLeft/60)
-					sudo python3 $discordScript $botToken $channelID "The server will be shut down in" $minLeft "minutes."
-					secLeft-=60
+					minLeft=$(($secLeft / 60))
+					python3 $discordScript $botToken $channelID "The server will be shut down in" $minLeft "minutes."
+					secLeft=$(($secLeft - 60))
 					sleep 60
-				done	
+				done
+					python3 $discordScript $botToken $channelID "The server is now shut down."
 			else
-				echo "[X] No Discord botToken or channelID found."
+				echo "[X] No Discord botToken or channelID found"
 			fi
 		fi
 
         echo "[V] Existing PIDs: $pid"
-		exec kill -SIGINT $pid
+		kill -SIGINT $pid
 
-        cpt=15
+        cpt=30
         while [ "$cpt" -gt 0 ]; do
                 echo "Shutting down... $cpt"
                 sleep 1
@@ -116,20 +126,19 @@ if [ "$currentTimestamp" -gt "$lastTimestamp" ]; then
 	if [ "$discordBotEnable" = true ]; then
 		echo "[V] Discord Bot is enable"
 		if [ -n "$botToken" ] && [ -n "$channelID" ]; then
-			sudo python3 $discordScript $botToken $channelID "@everyone A new official update have been found."
+			python3 $discordScript $botToken $channelID "@everyone A new official update have been found, server is going to reboot. Please restart your game to apply the patch."
 		else
 			echo "[X] No Discord botToken or channelID found."
 		fi
 	fi
-    	stop
+    conan_stop
 	echo "Deleting appcache..."
 	rm -rf $SteamPath/appcache/
 	$SteamCmdPath/steamcmd.sh +@sSteamCmdForcePlatformType windows +force_install_dir $ConanPath +login anonymous +app_update 443030 validate +quit
 
 	echo "[V] Update finished"
     echo "$currentTimestamp" > $ConanPath/lastUpdate
-
-	start
+	conan_start
 else
     echo "[X] No update found"
 fi
@@ -169,7 +178,7 @@ echo -e "${RED}[SKIP] Setting up iptables...${NC}\n"
 
 sudo iptables -t filter -I INPUT -p udp --dport $Port -j ACCEPT
 sudo iptables -t filter -I INPUT -p udp --dport $QueryPort -j ACCEPT
-sudo iptables -t filter -I INPUT -p udp --dport 7778 -j ACCEPT
+sudo iptables -t filter -I INPUT -p udp --dport 7778 -j ACCEPT 			# Used by wine, as far as I know
 
 
 echo -e "${RED}Installing screen...\n${NC}"
@@ -183,7 +192,11 @@ sudo apt update
 echo -e "${RED}\nInstalling wine2.0...${NC}"
 sudo apt install wine2.0 wine-gecko*
 
-dpkg-query -l wine2.0
+echo -e "${RED}\nInstalling winetricks...${NC}"
+sudo wget https://raw.githubusercontent.com/Winetricks/winetricks/master/src/winetricks
+sudo chown "$user": winetricks
+winetricks vcrun2015
+
 if [ $? -eq 1 ]; then
 	echo -e "${RED}\n[ERROR] Wine2.0 is not installed, server may not work.${NC}"
 	sleep 2
@@ -213,12 +226,13 @@ if  [ ! -f "$SteamCmdPath/steamcmd.sh" ]; then
 fi
 
 echo -e "\n${RED}Downloading lastest version of Conan Exiles Server...${NC}"
-echo -e "Please enter your ${RED}\"$user\"${NC} password"
 
+echo -e "Please enter your ${RED}\"$user\"${NC} password"
 su -c "$SteamCmdPath/steamcmd.sh +@sSteamCmdForcePlatformType windows +force_install_dir $ConanPath +login anonymous +app_update 443030 validate +quit" -m $user
 
 echo -e "\n${RED}Creating timestamp for updates...${NC}"
 currentTimestamp=$($SteamCmdPath/steamcmd.sh +login anonymous +app_info_update 1 +app_info_print 443030 +quit | grep -EA 1000 "^\s+\"branches\"$" | grep -EA 5 "^\s+\"public\"$" | grep -m 1 -EB 10 "^\s+}" | grep -E "^\s+\"timeupdated\"\s+" | tr '[:blank:]"' ' ' | awk '{print $2}')
+
 echo -e "Please enter your ${RED}\"$user\"${NC} password"
 su -m $user -c "touch $ConanPath/lastUpdate && echo "$currentTimestamp" > $ConanPath/lastUpdate"
 
@@ -243,10 +257,10 @@ function conan_crontab {
 
 	if [ ! "$restartTime" -eq 0 ]; then
 		echo -e "${RED}Crontab:${NC} */$restartTime * * * * conan start"
-		sudo crontab -u $user -l > $tmp
-		sudo echo "*/$restartTime * * * * conan start" >> $tmp
-		sudo crontab -u $user $tmp
-		sudo rm $tmp
+		crontab -u $user -l > $tmp
+		echo "*/$restartTime * * * * conan start" >> $tmp
+		crontab -u $user $tmp
+		rm $tmp
 	fi
 
 	echo -e "Enable ${RED}auto-updater${NC} ? (checks for update and if needed, apply and restart server). Enter a number of minutes between checks (0 to disable)"
@@ -259,15 +273,15 @@ function conan_crontab {
 
 	if [ ! "$updateTime" -eq 0 ]; then
 		echo -e "${RED}Crontab:${NC} */$updateTime * * * * conan update"
-		sudo crontab -u $user -l > $tmp
-		sudo echo "*/$updateTime * * * * conan update" >> $tmp
-		sudo crontab -u $user $tmp
-		sudo rm $tmp
+		crontab -u $user -l > $tmp
+		echo "*/$updateTime * * * * conan update" >> $tmp
+		crontab -u $user $tmp
+		rm $tmp
 	fi
-
 }
 
 function conan_discord {
+	echo -e "${RED}THIS PART NEED ROOT ACCESS${NC}\n"
 
 	echo -e "Installing ${RED}Discord Bot${NC}. Before continuing, create a Discord Bot and add it on your server by following this tutorial: "
 	echo -e "${RED}https://github.com/reactiflux/discord-irc/wiki/Creating-a-discord-bot-&-getting-a-token${NC}"
@@ -276,7 +290,7 @@ function conan_discord {
 		echo -e "Please insert your ${RED}botToken: ${NC}"
 		read botToken
 		echo -e "Don't forget to set it in conan script"
-	filter
+	fi
 
 	if [ -z "$channelID" ]; then
 		echo -e "Please insert your ${RED}channelID: ${NC}"
@@ -306,9 +320,12 @@ echo -e "Join us on ${RED}http://akylonia.net${NC} or ${RED}discord.gg/7zbWQzU${
 echo -e "\nAvailable commands:"
 echo -e "start\t\t: Starts server. Checks for servers already running" | indent
 echo -e "stop\t\t: Safely stops servers by sending a SIGINT" | indent
+echo -e "reboot [reason]\t: Reboot the server safely and send a message to Discord." | indent
 echo -e "update\t\t: Apply a pending update. Closes and restarts the servers properly" | indent
 echo -e "show\t\t: Display running servers and their id" | indent
-echo -e "screen [id]\t: Display console. Use ${RED}\"Ctrl + A D\"${NC} to quit the screen without shutting down the server" | indent
+echo -e "screen [id]\t: Display console. Use ${RED}\"Ctrl + A + D\"${NC} to quit the screen without shutting down the server" | indent
+echo -e "crontab\t\t: Allows to enable crontab for auto-restart/update" | indent
+echo -e "discord\t\t: Install a Discord Bot which will announce server status" | indent
 echo ""
 echo -e "[!] Be careful, ${RED}leaving a screen with Ctrl + C force your server to crash without saving${NC}, which can heavily corrupt your database\n" | indent
 }
@@ -316,13 +333,14 @@ echo -e "[!] Be careful, ${RED}leaving a screen with Ctrl + C force your server 
 case "$1" in
     start) conan_start ;;
     stop) conan_stop ;;
+	reboot) conan_reboot ;;
     update) conan_update ;;
     show) conan_show ;;
     screen) conan_screen ;;
-    help) conan_help ;;
     install) conan_install ;;
     crontab) conan_crontab ;;
 	discord) conan_discord ;;
+    help) conan_help ;;
 
     *) echo "Command not found: \"$1\": use \"conan help\" to get more informations"
 esac

@@ -23,7 +23,7 @@ async def on_ready():
 		POSTedJSON =  json.dumps ( {"content":message} )
 		r = requests.post(baseURL, headers = headers, data = POSTedJSON)
 	else:
-		print('Error. Usage: script.py <botToken> <channelID> <msg> [<msg n>]')
+		print('Error. Usage: discord_bot.py <botToken> <channelID> <msg> [<msg n>]')
 	quit()
 
 client.run(botToken)
