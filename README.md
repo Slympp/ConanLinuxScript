@@ -24,39 +24,42 @@ Add me on [Steam](http://steamcommunity.com/id/Slymp/ "Steam") or join us on [Di
 
  * **stop** : Shutdown the server cleanly by sending a SIGINT to the screen.
 
- * **reboot [reason]** : Restart the server securely. You can specify a message to send with your Discord Bot.
-  *(i.e.: conan reboot "Quick reboot to flush memory leaks !")*  
+ * **reboot [reason]** : Restart the server securely. You can specify a message to send with your Discord Bot.     
+   *(i.e.: conan reboot "Quick reboot to flush memory leaks !")*
 
  * **update** : Check for available updates. If needed, close the server, apply the update and restart.
 
  * **show** : Display running server(s).
 
- * screen** : Display the server console to look at your server logs. Use "Ctrl + A" then "Ctrl + D" to leave the screen without stopping the server.
+ * **screen** : Display the server console to look at your server logs. Use "**Ctrl + A**" then "**Ctrl + D**" to leave the screen without stopping the server.
 
  * **install** : Install the whole server and dependencies
-    * Creates a specific user for running your server
-    * Set up a minimal iptables configuration
-    * Install wine 2.0, screen, steamCmd...
-    * Download server files
+    + Creates a specific user for running your server
+    + Set up a minimal iptables configuration
+    + Install wine 2.0, screen, steamCmd...
+    + Download server files
 
- * **discord** : Install a Discord Bot that will handle handle communication between the script and your Discord server. Announces:
- 	* Server start
- 	* Server stop
- 	* Delayed announce before server shutdown
- 	* Server updates
- 	* Server custom reboots
-	* RaidsHours ON/OFF
+ * **discord** : Install a Discord Bot that will handle handle communication between the script and your Discord server.      
+ Announces:
+ 	+ Server start
+ 	+ Server stop
+ 	+ Delayed announce before server shutdown
+ 	+ Server updates
+ 	+ Server custom reboots
+	+ RaidsHours ON/OFF
 
-  *Admins may be able in the future to handle the server with commands on a specific channel*  
+  *Admins may be able in the future to handle the server with commands on a specific channel*
 
- * **raidhours** : Enable a daily period where raids are possible. You need to configure the script and run "conan crontab"
-  *This will require a reboot of your server to apply the changements. Your players will be warned with a Discord message and a delay*  
+ * **raidhours** : Enable a daily period where raids are possible. You need to configure the script and run "conan crontab"      
+  *This will require a reboot of your server to apply the changements. Your players will be warned with a Discord message and a delay*
 
  * **crontab** : Enable crontabs to automate the management of your server.
- 	* auto-restarter: Restart your server if it crashs when you're not here to restart it.
- 	* auto-updater: Let the script handle updates for you.
- 	* raid hours: Automate the "raidhours" task.
+ 	+ auto-restarter: Restart your server if it crashs when you're not here to restart it.
+ 	+ auto-updater: Let the script handle updates for you.
+ 	+ raid hours: Automate the "raidhours" task.
 
+
+******
 
 
 # How-to-use
@@ -127,7 +130,6 @@ Look at the logs by attaching the screen. Detach with Ctrl + A + D
 Enjoy ! :D
 
 
-# 
 
 ## TODO :
 
@@ -148,29 +150,29 @@ Error with "conan screen" : "Cannot open your terminal '/dev/pts/x' - please che
 ## Changelog
 
 Version 9
- * Tutorial updated
- * Cleaner output
- * Logs on crontab
+ + Tutorial updated
+ + Cleaner output
+ + Logs on crontab
 
 Version 8
- * many fixs
- * stop: now wait that the PID is really killed before closing 
- * [NEW] "wait" parameter for start: Loop for 10mn trying to run a server if there's one currently running 
- * [NEW] raidhours: you need to configure a RaidHoursStart and RaidHoursDuration at the top of the script. It will reboot server and send a Discord message when needed
+ + many fixs
+ + stop: now wait that the PID is really killed before closing 
+ + [NEW] "wait" parameter for start: Loop for 10mn trying to run a server if there's one currently running 
+ + [NEW] raidhours: you need to configure a RaidHoursStart and RaidHoursDuration at the top of the script. It will reboot server and send a Discord message when needed
 
 Version 7
- * User guide added
- * Server password handling removed (need to check this later)
- * Reboot command added
+ + User guide added
+ + Server password handling removed (need to check this later)
+ + Reboot command added
 
 Version 6
- * Discord Bot announcer added
- * Fixed some prompts
+ + Discord Bot announcer added
+ + Fixed some prompts
 
 
 ## Thanks 
 
- * [discord.py](https://github.com/Rapptz/discord.py "discord.py")
- * [prom3theu5](https://github.com/prom3theu5/ConanExilesServerUpdater "prom3theu5")
- * [Untriel](http://steamcommunity.com/id/untriel "Untriel")
- * [Awful Citizen](http://steamcommunity.com/id/awfulcitizen "Awful Citizen")
+ + [discord.py](https://github.com/Rapptz/discord.py "discord.py")
+ + [prom3theu5](https://github.com/prom3theu5/ConanExilesServerUpdater "prom3theu5")
+ + [Untriel](http://steamcommunity.com/id/untriel "Untriel")
+ + [Awful Citizen](http://steamcommunity.com/id/awfulcitizen "Awful Citizen")
