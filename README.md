@@ -108,6 +108,8 @@ If you're using a desktop version or ssh, disconnect from your session and login
 
 ## Using the server, as $user
 
+**You should always use your Conan Exiles specific user to interact with your server.**
+
 (Recommended) Set up your crontabs
 
 	./conan crontab
