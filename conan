@@ -17,14 +17,14 @@ QueryPort="27015"
 Server_Name="YourServerName"
 
 # RaidHours configuration
-raidHoursEnable=true
+raidHoursEnable=false
 raidHoursStart=19				# Players will be able to raid from 7PM
 raidHoursDuration=5				# for 5 hours: until midnight
 
 # Discord Bot configuration
-discordBotEnable=true
-botToken="MjgxMTEwMjY1ODQ2NTYyODI2.C4vUlw.W_PMHO6jJb9FyAKwbZ5HX5OMjBk"
-channelID="283319531412258816"
+discordBotEnable=false
+botToken=""
+channelID=""
 announceTimer=0 # in minutes
 
 # Do not modify
