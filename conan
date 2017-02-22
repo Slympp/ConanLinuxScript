@@ -18,13 +18,13 @@ Server_Name="YourServerName"
 
 # RaidHours configuration
 raidHoursEnable=true
-raidHoursStart=0				# Players will be able to raid from 7PM
+raidHoursStart=19				# Players will be able to raid from 7PM
 raidHoursDuration=5				# for 5 hours: until midnight
 
 # Discord Bot configuration
 discordBotEnable=true
-botToken=""
-channelID=""
+botToken="MjgxMTEwMjY1ODQ2NTYyODI2.C4vUlw.W_PMHO6jJb9FyAKwbZ5HX5OMjBk"
+channelID="283319531412258816"
 announceTimer=0 # in minutes
 
 # Do not modify
@@ -107,6 +107,7 @@ else
 					secLeft=$(($secLeft - 60))
 					sleep 60
 				done
+				python3 $discordScript $botToken $channelID "The server is shutting down."
 			else
 				echo "[X] No Discord botToken or channelID found"
 			fi
@@ -128,7 +129,7 @@ else
         if [ "$discordBotEnable" = true ]; then
 			echo "[V] Discord Bot is enable"
 			if [ -n "$botToken" ] && [ -n "$channelID" ]; then
-				python3 $discordScript $botToken $channelID "The server is now shut down."
+				python3 $discordScript $botToken $channelID "The server shutted down in $cpt."
 			else
 				echo "[X] No Discord botToken or channelID found"
 			fi
@@ -240,7 +241,7 @@ if  [ ! -f "$SteamCmdPath/steamcmd.sh" ]; then
 	echo -e "\n$SteamCmdPath seems not to exist."
 	read -r -p "Do you want to install SteamCMD ? [y/N] " response
 	case "$response" in
-    	[yY][eE][sS]|[yY]) 
+    	[yY][eE][sS]|[yY])
 			echo -e "${RED}\nDownloading SteamCMD...${NC}"
 			echo -e "Please enter your ${RED}\"$user\"${NC} password"
 			su -m $user -c "mkdir -p $SteamCmdPath && cd $SteamCmdPath && wget https://steamcdn-a.akamaihd.net/client/installer/steamcmd_linux.tar.gz && tar -xvzf steamcmd_linux.tar.gz && rm -rf steamcmd_linux.tar.gz"
@@ -357,10 +358,10 @@ function conan_raidhours {
 	if [ "$raidHoursEnable" = true ]; then
 		currentHour=$(echo $(date +"%H"))
 		raidHoursEnd=$((raidHoursStart + $raidHoursDuration))
-		
+
 		grep -q "CanDamagePlayerOwnedStructures=False" "$ConanPath/ConanSandbox/Saved/Config/WindowsServer/ServerSettings.ini"
 		isRaidDisableInFile=$?
-		
+
 		echo -e "Current hour is: $currentHour"
 		echo -e "Start hour: $raidHoursStart"
 		echo -e "End hour: $raidHoursEnd"
@@ -368,7 +369,7 @@ function conan_raidhours {
 		if (("$currentHour" >= "$raidHoursStart")) && (("$currentHour" < "$raidHoursEnd")); then
 			if [ $isRaidDisableInFile -eq 0 ]; then
 				lineInFile="$(grep -n "CanDamagePlayerOwnedStructures=False" "$ConanPath/ConanSandbox/Saved/Config/WindowsServer/ServerSettings.ini" | grep -Eo '^[^:]+')"
-				
+
 				if [ -z "$lineInFile" ]; then
 					echo "> Variable is not in file, adding at end"
 					echo "CanDamagePlayerOwnedStructures=True" >> $ConanPath/ConanSandbox/Saved/Config/WindowsServer/ServerSettings.ini
@@ -376,7 +377,7 @@ function conan_raidhours {
 					echo "> Raid is disable in file (line $lineInFile)"
 					sed -i "${lineInFile}s/.*/CanDamagePlayerOwnedStructures=True/" $ConanPath/ConanSandbox/Saved/Config/WindowsServer/ServerSettings.ini
 				fi
-				conan_reboot "raiding will be ON for $raidHoursDuration, right after the reboot"
+				conan_reboot "raiding will be ON for $raidHoursDuration hours, right after the reboot"
 			else
 				echo "> Nothing to do"
 			fi
@@ -384,7 +385,7 @@ function conan_raidhours {
 			echo "RAID OFF PART"
 			if [ $isRaidDisableInFile -eq 1 ]; then
 				lineInFile="$(grep -n "CanDamagePlayerOwnedStructures=True" "$ConanPath/ConanSandbox/Saved/Config/WindowsServer/ServerSettings.ini" | grep -Eo '^[^:]+')"
-				
+
 				if [ -z "$lineInFile" ]; then
 					echo "> Variable is not in file, adding at end"
 					echo "CanDamagePlayerOwnedStructures=False" >> $ConanPath/ConanSandbox/Saved/Config/WindowsServer/ServerSettings.ini
@@ -392,7 +393,7 @@ function conan_raidhours {
 					echo "> Raid is enable in file (line $lineInFile)"
 					sed -i "${lineInFile}s/.*/CanDamagePlayerOwnedStructures=False/" $ConanPath/ConanSandbox/Saved/Config/WindowsServer/ServerSettings.ini
 				fi
-				conan_reboot "raiding will be OFF right after the reboot"
+				conan_reboot "raiding will be OFF right after the reboot. See you tomorrow boys !"
 			else
 				echo "> Nothing to do"
 			fi
@@ -425,14 +426,14 @@ echo -e "[!] Be careful, ${RED}leaving a screen with Ctrl + C force your server 
 }
 
 case "$1" in
-    start) conan_start $2 ;;
-    stop) conan_stop ;;
+	start) conan_start $2 ;;
+	stop) conan_stop ;;
 	reboot) conan_reboot $2 ;;
-    update) conan_update ;;
-    show) conan_show ;;
-    screen) conan_screen ;;
-    install) conan_install ;;
-    crontab) conan_crontab ;;
+	update) conan_update ;;
+	show) conan_show ;;
+	screen) conan_screen ;;
+	install) conan_install ;;
+	crontab) conan_crontab ;;
 	discord) conan_discord ;;
 	raidhours) conan_raidhours ;;
     help) conan_help ;;
