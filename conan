@@ -31,7 +31,7 @@ channelID="YourChannelId"
 delayBeforeShutdown=0 			# in minutes
 
 # Do not modify
-ScriptVersion=8
+ScriptVersion=9
 RED='\033[0;31m'
 NC='\033[0m'
 logDate=$(date +"%T")
@@ -278,9 +278,10 @@ function conan_crontab {
 
 	tmp=crontab_tmp
 	re='^[0-9]+$'
-	logsDate=$(date +"%d-%m-%y")
+	isEdited=false
 
-	mkdir /home/$user/logs
+	mkdir -p /home/$user/logs
+	crontab -u $user -l > $tmp
 
 	echo -e "Enable ${RED}auto-restart${NC} ? (checks if there's no server running and start if needed). Enter a number of minutes between checks (0 to disable)"
 	read restartTime
@@ -291,11 +292,9 @@ function conan_crontab {
 	fi
 
 	if [ ! "$restartTime" -eq 0 ]; then
-		echo -e "${RED}Crontab:${NC} */$restartTime * * * * conan start >> /home/$user/logs/auto_restarter_$logsDate.log"
-		crontab -u $user -l > $tmp
-		echo "*/$restartTime * * * * conan start >> /home/$user/logs/auto_restarter_$logsDate.log" >> $tmp
-		crontab -u $user $tmp
-		rm $tmp
+		isEdited=true
+		echo -e "${RED}Crontab:${NC} */$restartTime * * * * conan start >> /home/$user/logs/restarter_\`date +\%Y-\%m-\%d-cron\`.log"		
+		echo "*/$restartTime * * * * conan start >> /home/$user/logs/auto_restarter_\`date +\%Y-\%m-\%d-cron\`.log" >> $tmp
 	fi
 
 	echo -e "Enable ${RED}auto-updater${NC} ? (checks for update and if needed, apply and restart server). Enter a number of minutes between checks (0 to disable)"
@@ -307,11 +306,9 @@ function conan_crontab {
 	fi
 
 	if [ ! "$updateTime" -eq 0 ]; then
-		echo -e "${RED}Crontab:${NC} */$updateTime * * * * conan update >> /home/$user/logs/auto_updater_$logsDate.log"
-		crontab -u $user -l > $tmp
-		echo "*/$updateTime * * * * conan update >> /home/$user/logs/auto_updater_$logsDate.log" >> $tmp
-		crontab -u $user $tmp
-		rm $tmp
+		isEdited=true
+		echo -e "${RED}Crontab:${NC} */$updateTime * * * * conan update >> /home/$user/logs/updater_\`date +\%Y-\%m-\%d-cron\`.log"
+		echo "*/$updateTime * * * * conan update >> /home/$user/logs/auto_updater_\`date +\%Y-\%m-\%d-cron\`.log" >> $tmp
 	fi
 
 	echo -e "Enable ${RED}RaidHours${NC} ? (Player won't be able to destroy other buildings when Raids are disable). Enter a number of minutes between checks (0 to disable)"
@@ -323,12 +320,17 @@ function conan_crontab {
 	fi
 
 	if [ ! "$raidHoursTime" -eq 0 ]; then
-		echo -e "${RED}Crontab:${NC} */$raidHoursTime * * * * conan raidhours >> /home/$user/logs/auto_raidhours_$logsDate.log"
-		crontab -u $user -l > $tmp
-		echo "*/$raidHoursTime * * * * conan raidhours >> /home/$user/logs/auto_raidhours_$logsDate.log" >> $tmp
-		crontab -u $user $tmp
-		rm $tmp
+		isEdited=true
+		echo -e "${RED}Crontab:${NC} */$raidHoursTime * * * * conan raidhours >> /home/$user/logs/raidhours_\`date +\%Y-\%m-\%d-cron\`.log"
+		echo "*/$raidHoursTime * * * * conan raidhours >> /home/$user/logs/auto_raidhours_\`date +\%Y-\%m-\%d-cron\`.log" >> $tmp
 	fi
+
+	if [ "$isEdited" = true ]; then
+		crontab -u $user $tmp
+		echo -e "${RED}Crontabs edited${NC}"
+	fi
+
+	rm $tmp
 }
 
 function conan_discord {
@@ -403,7 +405,7 @@ function conan_raidhours {
 		echo "[$logDate][ERROR] RaidHours are disabled"
 	fi
 }
-.
+
 function indent { sed -e 's/^/\t/'; }
 
 function conan_help {
