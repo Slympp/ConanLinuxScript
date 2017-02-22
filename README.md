@@ -8,10 +8,10 @@ Features are described in the Usage section.
 
 Feel free to send your fixs/distro compatibilities/features by sending a pull request. 
 
-| Distributions	| Versions			 | Status    |
-|:-------------:|:------------------:|:---------:|
-| Ubuntu      	| 16.04.02 'server'  | Supported |
-| Ubuntu      	| 16.04.02 'desktop' | Supported |
+| Distributions	| Versions		  | Status    |
+|:-------------:|:---------------:|:---------:|
+| Ubuntu      	| 16.04 *server*  | Supported |
+| Ubuntu      	| 16.04 *desktop* | Supported |
 
 Made by Slymp, for [Akylonia.net](http://akylonia.net "Akylonia website")
 
@@ -20,26 +20,26 @@ Add me on [Steam](http://steamcommunity.com/id/Slymp/ "Steam") or join us on [Di
 
 ## Usage
 
- * start: Start the server. Don't do anything if a server is running.
+ * **start** : Start the server. Don't do anything if a server is running.
 
- * stop: Shutdown the server cleanly by sending a SIGINT to the screen.
+ * **stop** : Shutdown the server cleanly by sending a SIGINT to the screen.
 
- * reboot [reason]: Restart the server securely. You can specify a message to send with your Discord Bot.
- 	*(i.e. : conan reboot "Quick reboot to flush memory leaks !")*
+ * **reboot [reason]** : Restart the server securely. You can specify a message to send with your Discord Bot.
+ ⋅⋅*(i.e.: conan reboot "Quick reboot to flush memory leaks !")*⋅⋅
 
- * update: Check for available updates. If needed, close the server, apply the update and restart.
+ * **update** : Check for available updates. If needed, close the server, apply the update and restart.
 
- * show: Display running server(s).
+ * **show** : Display running server(s).
 
- * screen : Display the server console to look at your server logs. Use "Ctrl + A" then "Ctrl + D" to leave the screen without stopping the server.
+ * screen** : Display the server console to look at your server logs. Use "Ctrl + A" then "Ctrl + D" to leave the screen without stopping the server.
 
- * install: Installs the whole server and dependencies
+ * **install** : Install the whole server and dependencies
     * Creates a specific user for running your server
     * Set up a minimal iptables configuration
     * Install wine 2.0, screen, steamCmd...
     * Download server files
 
- * discord: Install a Discord Bot that will handle handle communication between the script and your Discord server. Announces:
+ * **discord** : Install a Discord Bot that will handle handle communication between the script and your Discord server. Announces:
  	* Server start
  	* Server stop
  	* Delayed announce before server shutdown
@@ -47,20 +47,21 @@ Add me on [Steam](http://steamcommunity.com/id/Slymp/ "Steam") or join us on [Di
  	* Server custom reboots
 	* RaidsHours ON/OFF
 
- 	*Admins may be able in the future to handle the server from a specific channel* 
+ ⋅⋅*Admins may be able in the future to handle the server with commands on a specific channel*⋅⋅
 
- * raidhours: Enable a daily period where raids are possible. You need to configure the script and run "conan crontab"
- 	*This will require a reboot of your server to apply the changements. Your players will be warned with a Discord message and a delay*
+ * **raidhours** : Enable a daily period where raids are possible. You need to configure the script and run "conan crontab"
+ ⋅⋅*This will require a reboot of your server to apply the changements. Your players will be warned with a Discord message and a delay*⋅⋅
 
- * crontab: Enable crontabs to automate the management of your server.
+ * **crontab** : Enable crontabs to automate the management of your server.
  	* auto-restarter: Restart your server if it crashs when you're not here to restart it.
  	* auto-updater: Let the script handle updates for you.
  	* raid hours: Automate the "raidhours" task.
 
 
+
 # How-to-use
 
-### Downloading & Configuration
+## Downloading & Configuration
 
 Clone the repository containing the scripts, then change your current directory to where you have cloned the repository
 
@@ -71,7 +72,7 @@ Open your favorite text editor to set up your parameters: ServerName, ports, pat
 	nano conan
 
 
-### Server installation, need root privileges
+## Server installation, need root privileges
 
 Run the script. You will be asked to create a new user (or use an already existing one). For this installation, user will be "steam"
 
@@ -102,7 +103,7 @@ Installation is almost finished, you should now always use your user to interact
 If you're using a desktop version or ssh, disconnect from your session and login as $user (it's recommended in order to avoid errors with screen)
 
 
-### Using the server, as $user
+## Using the server, as $user
 
 (Recommended) Set up your crontabs
 
@@ -126,7 +127,7 @@ Look at the logs by attaching the screen. Detach with Ctrl + A + D
 Enjoy ! :D
 
 
-# Others
+# 
 
 ## TODO :
 
@@ -169,6 +170,7 @@ Version 6
 
 ## Thanks 
 
-Thanks for their contributions on Steam forum
+ * [discord.py](https://github.com/Rapptz/discord.py "discord.py")
+ * [prom3theu5](https://github.com/prom3theu5/ConanExilesServerUpdater "prom3theu5")
  * [Untriel](http://steamcommunity.com/id/untriel "Untriel")
- * [Awful Citizen](http://steamcommunity.com/id/awfulcitizen "Awful Citizen") 
+ * [Awful Citizen](http://steamcommunity.com/id/awfulcitizen "Awful Citizen")
