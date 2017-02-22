@@ -21,28 +21,32 @@ raidHoursEnable=false
 raidHoursStart=19				# Players will be able to raid from 7PM
 raidHoursDuration=5				# for 5 hours: until midnight
 
+raidOnString="raiding will be ON for $raidHoursDuration hours, right after the reboot"
+raidOffString="raiding will be OFF right after the reboot. See you tomorrow at $raidHoursStart boys"
+
 # Discord Bot configuration
 discordBotEnable=false
-botToken=""
-channelID=""
-announceTimer=0 # in minutes
+botToken="YourBotToken"
+channelID="YourChannelId"
+delayBeforeShutdown=0 			# in minutes
 
 # Do not modify
 ScriptVersion=8
 RED='\033[0;31m'
 NC='\033[0m'
+logDate=$(date +"%T")
 
 #########################################################
 
 function conan_start {
 
-echo "Starting server..."
+echo "[$logDate] Starting server..."
 
 isServerDown=$(ps axf | grep ConanSandboxServer-Win64-Test.exe | grep -v grep)
 if [ "$1" == "wait" ]; then
 	cpt=0
 	while [ ! -z "$isServerDown" ] && [ $cpt -lt 600 ]; do
-		echo "A server is running, waiting... $cpt"
+		echo "[$logDate][WAIT] A server is running, waiting... $cpt"
 		((cpt++))
 		sleep 1
 		isServerDown=$(ps axf | grep ConanSandboxServer-Win64-Test.exe | grep -v grep)
@@ -52,39 +56,38 @@ fi
 
 if [ -z "$isServerDown" ]; then
 	screen -dmS conan bash -c "wine $ConanPath/ConanSandboxServer.exe ConanSandbox?MULTIHOME=$IP?listen? -log -Port=$Port -QueryPort=$QueryPort -ServerName=\"$Server_Name\""
-	echo "[V] Server is now up"
+	echo "[$logDate][SUCCESS] Server is now up"
 	echo "Use \"conan screen\" to watch logs"
 
 	if [ $discordBotEnable = true ]; then
-		echo "[V] Discord Bot is enable"
+		echo "[$logDate][SUCCESS] Discord Bot is enable"
 		if [ -n "$botToken" ] && [ -n "$channelID" ]; then
 			python3 $discordScript $botToken $channelID "The server is being launched and will be available in a few moments."
 		else
-			echo "[X] No Discord botToken or channelID found"
+			echo "[$logDate][ERROR] No Discord botToken or channelID found"
 		fi
 	fi
 else
-	echo "[X] Server is already up, no restart required"
+	echo "[$logDate][FAILED] A server is already up, no restart required"
 fi
 }
 
 function conan_reboot {
 
 	if [ $discordBotEnable = true ]; then
-		echo "[V] Discord Bot is enable"
+		echo "[$logDate][SUCCESS] Discord Bot is enable"
 		if [ -n "$botToken" ] && [ -n "$channelID" ]; then
-			echo "Args: $@"
 			if [ -n "$1" ]; then
 				python3 $discordScript $botToken $channelID "@everyone The server is going to reboot. Reason: $@."
 			else
 				python3 $discordScript $botToken $channelID "@everyone The server is going to reboot."
 			fi
 		else
-			echo "[X] No Discord botToken or channelID found"
+			echo "[$logDate][ERROR] No Discord botToken or channelID found"
 		fi
 	fi
 
-	echo "[V] Server is going to reboot"
+	echo "[$logDate][SUCCESS] Server is going to reboot"
 	conan_stop
 	conan_start wait
 }
@@ -94,82 +97,82 @@ function conan_stop {
 pid=$(ps axf | grep ConanSandboxServer-Win64-Test.exe | grep -v grep | awk '{print $1}')
 
 if [ -z "$pid" ]; then
-	echo "[X] There's no server to stop"
+	echo "[$logDate][FAILED] There's no server to stop"
 else
 		if [ "$discordBotEnable" = true ]; then
-			echo "[V] Discord Bot is enable"
+			echo "[$logDate][SUCCESS] Discord Bot is enable"
 			if [ -n "$botToken" ] && [ -n "$channelID" ]; then
-				secLeft=$(($announceTimer * 60))
+				secLeft=$(($delayBeforeShutdown * 60))
 
 				while [ $secLeft -gt "0" ]; do
 					minLeft=$(($secLeft / 60))
+					echo "[$logDate][WAIT] Server will be shut down in $minLeft minutes"
 					python3 $discordScript $botToken $channelID "The server will be shut down in" $minLeft "minutes."
 					secLeft=$(($secLeft - 60))
 					sleep 60
 				done
 				python3 $discordScript $botToken $channelID "The server is shutting down."
 			else
-				echo "[X] No Discord botToken or channelID found"
+				echo "[$logDate][ERROR] No Discord botToken or channelID found"
 			fi
 		fi
 
-        echo "[V] Existing PIDs: $pid"
+        echo "[$logDate][SUCCESS] Existing PIDs: $pid"
 		kill -SIGINT $pid
 
 		isServerDown=$(ps axf | grep ConanSandboxServer-Win64-Test.exe | grep -v grep)
         cpt=0
 		while [ ! -z "$isServerDown" ]; do
-			echo "Server is stopping, waiting..."
+			echo "[$logDate][WAIT] Server is stopping, waiting..."
 			((cpt++))
 			sleep 1
 		isServerDown=$(ps axf | grep ConanSandboxServer-Win64-Test.exe | grep -v grep)
 		done
-        echo "[V] Server stopped in $cpt seconds"
+        echo "[$logDate][SUCCESS] Server stopped in $cpt seconds"
 
         if [ "$discordBotEnable" = true ]; then
-			echo "[V] Discord Bot is enable"
+			echo "[$logDate][SUCCESS] Discord Bot is enable"
 			if [ -n "$botToken" ] && [ -n "$channelID" ]; then
-				python3 $discordScript $botToken $channelID "The server shutted down in $cpt."
+				python3 $discordScript $botToken $channelID "The server shutted down in $cpt seconds."
 			else
-				echo "[X] No Discord botToken or channelID found"
+				echo "[$logDate][ERROR] No Discord botToken or channelID found"
 			fi
 		fi
-
 fi
 }
 
 function conan_update {
 
-echo "Deleting appcache..."
+echo "[$logDate] Deleting appcache..."
 rm -rf $SteamPath/appcache/
 
 # Pull new info and compare new timestamp to saved timestamp
 # You may need to initially run the command for currentTimestamp manually and redirect it to $ConanPath/lastUpdate
-echo "Checking for last update..."
+echo "[$logDate] Checking for last update..."
 currentTimestamp=$($SteamCmdPath/steamcmd.sh +login anonymous +app_info_update 1 +app_info_print 443030 +quit | grep -EA 1000 "^\s+\"branches\"$" | grep -EA 5 "^\s+\"public\"$" | grep -m 1 -EB 10 "^\s+}" | grep -E "^\s+\"timeupdated\"\s+" | tr '[:blank:]"' ' ' | awk '{print $2}')
 lastTimestamp=$(cat $ConanPath/lastUpdate)
 
 if [ "$currentTimestamp" -gt "$lastTimestamp" ]; then
-	echo "[V] New update found"
+	echo "[$logDate][SUCCESS] New update found"
 
 	if [ "$discordBotEnable" = true ]; then
-		echo "[V] Discord Bot is enable"
+		echo "[$logDate][SUCCESS] Discord Bot is enable"
 		if [ -n "$botToken" ] && [ -n "$channelID" ]; then
 			python3 $discordScript $botToken $channelID "@everyone A new official update have been found, server is going to reboot. Please restart your game to apply the patch."
 		else
-			echo "[X] No Discord botToken or channelID found."
+			echo "[$logDate][ERROR] No Discord botToken or channelID found."
 		fi
 	fi
     conan_stop
-	echo "Deleting appcache..."
+	echo "[$logDate] Deleting appcache..."
 	rm -rf $SteamPath/appcache/
 	$SteamCmdPath/steamcmd.sh +@sSteamCmdForcePlatformType windows +force_install_dir $ConanPath +login anonymous +app_update 443030 validate +quit
 
-	echo "[V] Update finished"
+	echo "[$logDate][SUCCESS] Update finished"
     echo "$currentTimestamp" > $ConanPath/lastUpdate
 	conan_start
 else
-    echo "[X] No update found"
+    echo "[$logDate][FAILED] No update found"
 fi
 }
 
@@ -275,6 +278,9 @@ function conan_crontab {
 
 	tmp=crontab_tmp
 	re='^[0-9]+$'
+	logsDate=$(date +"%d-%m-%y")
+
+	mkdir /home/$user/logs
 
 	echo -e "Enable ${RED}auto-restart${NC} ? (checks if there's no server running and start if needed). Enter a number of minutes between checks (0 to disable)"
 	read restartTime
@@ -285,9 +291,9 @@ function conan_crontab {
 	fi
 
 	if [ ! "$restartTime" -eq 0 ]; then
-		echo -e "${RED}Crontab:${NC} */$restartTime * * * * conan start"
+		echo -e "${RED}Crontab:${NC} */$restartTime * * * * conan start >> /home/$user/logs/auto_restarter_$logsDate.log"
 		crontab -u $user -l > $tmp
-		echo "*/$restartTime * * * * conan start" >> $tmp
+		echo "*/$restartTime * * * * conan start >> /home/$user/logs/auto_restarter_$logsDate.log" >> $tmp
 		crontab -u $user $tmp
 		rm $tmp
 	fi
@@ -301,9 +307,9 @@ function conan_crontab {
 	fi
 
 	if [ ! "$updateTime" -eq 0 ]; then
-		echo -e "${RED}Crontab:${NC} */$updateTime * * * * conan update"
+		echo -e "${RED}Crontab:${NC} */$updateTime * * * * conan update >> /home/$user/logs/auto_updater_$logsDate.log"
 		crontab -u $user -l > $tmp
-		echo "*/$updateTime * * * * conan update" >> $tmp
+		echo "*/$updateTime * * * * conan update >> /home/$user/logs/auto_updater_$logsDate.log" >> $tmp
 		crontab -u $user $tmp
 		rm $tmp
 	fi
@@ -317,9 +323,9 @@ function conan_crontab {
 	fi
 
 	if [ ! "$raidHoursTime" -eq 0 ]; then
-		echo -e "${RED}Crontab:${NC} */$raidHoursTime * * * * conan raidhours"
+		echo -e "${RED}Crontab:${NC} */$raidHoursTime * * * * conan raidhours >> /home/$user/logs/auto_raidhours_$logsDate.log"
 		crontab -u $user -l > $tmp
-		echo "*/$raidHoursTime * * * * conan raidhours" >> $tmp
+		echo "*/$raidHoursTime * * * * conan raidhours >> /home/$user/logs/auto_raidhours_$logsDate.log" >> $tmp
 		crontab -u $user $tmp
 		rm $tmp
 	fi
@@ -362,65 +368,61 @@ function conan_raidhours {
 		grep -q "CanDamagePlayerOwnedStructures=False" "$ConanPath/ConanSandbox/Saved/Config/WindowsServer/ServerSettings.ini"
 		isRaidDisableInFile=$?
 
-		echo -e "Current hour is: $currentHour"
-		echo -e "Start hour: $raidHoursStart"
-		echo -e "End hour: $raidHoursEnd"
-
 		if (("$currentHour" >= "$raidHoursStart")) && (("$currentHour" < "$raidHoursEnd")); then
 			if [ $isRaidDisableInFile -eq 0 ]; then
 				lineInFile="$(grep -n "CanDamagePlayerOwnedStructures=False" "$ConanPath/ConanSandbox/Saved/Config/WindowsServer/ServerSettings.ini" | grep -Eo '^[^:]+')"
 
 				if [ -z "$lineInFile" ]; then
-					echo "> Variable is not in file, adding at end"
+					echo "[$logDate][ERROR] Variable is not in file, adding at end"
 					echo "CanDamagePlayerOwnedStructures=True" >> $ConanPath/ConanSandbox/Saved/Config/WindowsServer/ServerSettings.ini
 				else
-					echo "> Raid is disable in file (line $lineInFile)"
+					echo "[$logDate][SUCCESS] Raid is disable in file (line $lineInFile)"
 					sed -i "${lineInFile}s/.*/CanDamagePlayerOwnedStructures=True/" $ConanPath/ConanSandbox/Saved/Config/WindowsServer/ServerSettings.ini
 				fi
-				conan_reboot "raiding will be ON for $raidHoursDuration hours, right after the reboot"
+				conan_reboot "$raidOnString"
 			else
-				echo "> Nothing to do"
+				echo "[$logDate][FAILED] Nothing to do"
 			fi
 		else
-			echo "RAID OFF PART"
 			if [ $isRaidDisableInFile -eq 1 ]; then
 				lineInFile="$(grep -n "CanDamagePlayerOwnedStructures=True" "$ConanPath/ConanSandbox/Saved/Config/WindowsServer/ServerSettings.ini" | grep -Eo '^[^:]+')"
 
 				if [ -z "$lineInFile" ]; then
-					echo "> Variable is not in file, adding at end"
+					echo "[$logDate][ERROR] Variable is not in file, adding at end"
 					echo "CanDamagePlayerOwnedStructures=False" >> $ConanPath/ConanSandbox/Saved/Config/WindowsServer/ServerSettings.ini
 				else
-					echo "> Raid is enable in file (line $lineInFile)"
+					echo "[$logDate][SUCCESS] Raid is enable in file (line $lineInFile)"
 					sed -i "${lineInFile}s/.*/CanDamagePlayerOwnedStructures=False/" $ConanPath/ConanSandbox/Saved/Config/WindowsServer/ServerSettings.ini
 				fi
-				conan_reboot "raiding will be OFF right after the reboot. See you tomorrow boys !"
+				conan_reboot "$raidOffString"
 			else
-				echo "> Nothing to do"
+				echo "[$logDate][FAILED] Nothing to do"
 			fi
 		fi
 	else
-		echo "RaidHours are disabled."
+		echo "[$logDate][ERROR] RaidHours are disabled"
 	fi
 }
-
+.
 function indent { sed -e 's/^/\t/'; }
 
 function conan_help {
 
-echo "Script for managing a Conan Exiles server on Linux (v. $ScriptVersion)"
+echo "Script for administering a Conan Exiles server on Linux (v0.$ScriptVersion)"
 echo "Made by Slymp, tested on Ubuntu 16.04"
 echo -e "Join us on ${RED}http://akylonia.net${NC} or ${RED}discord.gg/7zbWQzU${NC}"
 
 echo -e "\nAvailable commands:"
-echo -e "start\t\t: Starts server. Checks for servers already running" | indent
-echo -e "stop\t\t: Safely stops servers by sending a SIGINT" | indent
-echo -e "reboot [reason]\t: Reboot the server safely and send a message to Discord. Use double-quotes for reason" | indent
-echo -e "update\t\t: Apply a pending update. Closes and restarts the servers properly" | indent
-echo -e "show\t\t: Display running servers and their id" | indent
-echo -e "screen [id]\t: Display console. Use ${RED}\"Ctrl + A + D\"${NC} to quit the screen without shutting down the server" | indent
-echo -e "crontab\t\t: Allows to enable crontab for auto-restart/update" | indent
+echo -e "start\t\t: Start the server. Don't do anything if a server is running." | indent
+echo -e "stop\t\t: Shutdown the server cleanly by sending a SIGINT to the screen." | indent
+echo -e "reboot [reason]\t: Restart the server securely. You can specify a message to send with your Discord Bot." | indent
+echo -e "update\t\t: Check for available updates. If needed, close the server, apply the update and restart." | indent
+echo -e "show\t\t: Display running server(s)." | indent
+echo -e "screen [id]\t: Display the server console to look at your server logs. Use ${RED}\"Ctrl + A\" then \"Ctrl + D\"${NC} to leave the screen without stopping the server." | indent
+echo -e "install\t\t: Installs the whole server and dependencies" | indent
 echo -e "discord\t\t: Install a Discord Bot which will announce server status" | indent
-echo -e "raidhours\t: Allows to enable raids at certains hours. You need to configure the script and run \"conan crontab\"" | indent
+echo -e "raidhours\t: Enable a daily period where raids are possible. You need to configure the script and run \"conan crontab\"" | indent
+echo -e "crontab\t\t: Enable crontabs to automate the management of your server." | indent
 echo ""
 echo -e "[!] Be careful, ${RED}leaving a screen with Ctrl + C force your server to crash without saving${NC}, which can heavily corrupt your database\n" | indent
 }
