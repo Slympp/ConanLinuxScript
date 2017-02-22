@@ -25,7 +25,7 @@ Add me on [Steam](http://steamcommunity.com/id/Slymp/ "Steam") or join us on [Di
  * **stop** : Shutdown the server cleanly by sending a SIGINT to the screen.
 
  * **reboot [reason]** : Restart the server securely. You can specify a message to send with your Discord Bot.
- ⋅⋅*(i.e.: conan reboot "Quick reboot to flush memory leaks !")*⋅⋅
+  *(i.e.: conan reboot "Quick reboot to flush memory leaks !")*  
 
  * **update** : Check for available updates. If needed, close the server, apply the update and restart.
 
@@ -47,10 +47,10 @@ Add me on [Steam](http://steamcommunity.com/id/Slymp/ "Steam") or join us on [Di
  	* Server custom reboots
 	* RaidsHours ON/OFF
 
- ⋅⋅*Admins may be able in the future to handle the server with commands on a specific channel*⋅⋅
+  *Admins may be able in the future to handle the server with commands on a specific channel*  
 
  * **raidhours** : Enable a daily period where raids are possible. You need to configure the script and run "conan crontab"
- ⋅⋅*This will require a reboot of your server to apply the changements. Your players will be warned with a Discord message and a delay*⋅⋅
+  *This will require a reboot of your server to apply the changements. Your players will be warned with a Discord message and a delay*  
 
  * **crontab** : Enable crontabs to automate the management of your server.
  	* auto-restarter: Restart your server if it crashs when you're not here to restart it.
