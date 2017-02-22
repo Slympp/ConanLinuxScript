@@ -40,7 +40,7 @@ Add me on [Steam](http://steamcommunity.com/id/Slymp/ "Steam") or join us on [Di
     + Download server files
 
  * **discord** : Install a Discord Bot that will handle handle communication between the script and your Discord server.      
- Announces:
+ Currently available announces:
  	+ Server start
  	+ Server stop
  	+ Delayed announce before server shutdown
@@ -50,7 +50,7 @@ Add me on [Steam](http://steamcommunity.com/id/Slymp/ "Steam") or join us on [Di
 
   *Admins may be able in the future to handle the server with commands on a specific channel*
 
- * **raidhours** : Enable a daily period where raids are possible. You need to configure the script and run "conan crontab"      
+ * **raidhours** : Enable a daily period where raids are possible. You need to configure the script and run "conan crontab".      
   *This will require a reboot of your server to apply the changements. Your players will be warned with a Discord message and a delay*
 
  * **crontab** : Enable crontabs to automate the management of your server.
@@ -77,7 +77,7 @@ Open your favorite text editor to set up your parameters: ServerName, ports, pat
 
 ## Server installation, need root privileges
 
-Run the script. You will be asked to create a new user (or use an already existing one). For this installation, user will be "steam"
+Run the script. You will be asked to create a new user (or use an already existing one). For this guide, user will be "steam"
 
 	sudo bash conan install
 
@@ -125,7 +125,7 @@ Check that your server is running.
 	./conan show
 
 
-Look at the logs by attaching the screen. Detach with Ctrl + A + D
+Look at the logs by attaching the screen. Detach with **Ctrl + A** then **Ctrl + D**
 
 	./conan screen
 
