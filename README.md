@@ -2,7 +2,7 @@
 
 Made by Slymp, with and for the Conan Exiles community
 
- * start: Start server. Checks for servers already running
+ * start (wait): Start server. Close if a server is running. With "conan start wait", it will looping to try to start a server for 10mn
  * stop: Safely stop servers by sending a SIGINT
  * reboot [reason]: Reboot the server safely and send a message to Discord.
  * update: Apply a pending update. Closes and restarts the servers properly
@@ -15,6 +15,7 @@ Made by Slymp, with and for the Conan Exiles community
      * download server files
  * crontab: Allows to enable crontab for auto-restart/update
  * discord: Install a Discord Bot which will announce server status
+ * raidhours: Allows to enable raids at certains hours. You need to configure the script and run "conan crontab"
 
 
 # First step: Install the server, as root
@@ -73,6 +74,12 @@ conan screen error : "Cannot open your terminal '/dev/pts/x' - please check."
 * If it don't works, try "script /dev/null"
 
 # Changelog
+
+Version 8
+ * many fixs
+ * stop: now wait that the PID is really killed before closing 
+ * [NEW] "wait" parameter for start: Loop for 10mn trying to run a server if there's one currently running 
+ * [NEW] raidhours: you need to configure a RaidHoursStart and RaidHoursDuration at the top of the script. It will reboot server and send a Discord message when needed
 
 Version 7
  * User guide added
