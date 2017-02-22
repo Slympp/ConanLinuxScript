@@ -112,7 +112,9 @@ If you're using a desktop version or ssh, disconnect from your session and login
 
 (Recommended) Set up your crontabs
 
-	./conan crontab
+	./conan crontab   
+
+*Logs will be available in /home/$user/logs*
 
 
 Start your server
