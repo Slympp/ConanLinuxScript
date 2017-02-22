@@ -418,7 +418,7 @@ echo -e "stop\t\t: Shutdown the server cleanly by sending a SIGINT to the screen
 echo -e "reboot [reason]\t: Restart the server securely. You can specify a message to send with your Discord Bot." | indent
 echo -e "update\t\t: Check for available updates. If needed, close the server, apply the update and restart." | indent
 echo -e "show\t\t: Display running server(s)." | indent
-echo -e "screen [id]\t: Display the server console to look at your server logs. Use ${RED}\"Ctrl + A\" then \"Ctrl + D\"${NC} to leave the screen without stopping the server." | indent
+echo -e "screen [id]\t: Display the server console to look at your server logs. Use ${RED}\"Ctrl + A\"${NC} then ${RED}\"Ctrl + D\"${NC} to leave the screen without stopping the server." | indent
 echo -e "install\t\t: Installs the whole server and dependencies" | indent
 echo -e "discord\t\t: Install a Discord Bot which will announce server status" | indent
 echo -e "raidhours\t: Enable a daily period where raids are possible. You need to configure the script and run \"conan crontab\"" | indent
