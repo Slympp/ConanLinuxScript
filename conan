@@ -117,7 +117,7 @@ else
 		fi
 
         echo "[$(date +"%T")][SUCCESS] Existing PIDs: $pid"
-		kill -SIGINT $pid
+		exec kill -SIGINT $pid
 
 		isServerDown=$(ps axf | grep ConanSandboxServer-Win64-Test.exe | grep -v grep)
         cpt=0
