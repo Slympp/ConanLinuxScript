@@ -141,6 +141,7 @@ Enjoy ! :D
 * Optimize code
 * Implement AvatarHours like RaidHours
 * Watch if there is a need to backup before an update (seems not but well...)
+* Fix raidhours from a day to an other
 * ... 
 
 
@@ -150,8 +151,14 @@ Error with "conan screen" : "Cannot open your terminal '/dev/pts/x' - please che
 * make sure you're current session is REALLY $user.
 * try "script /dev/null"
 
+Raid hours won't works if start a day and stop another.
+* 19h to midnight will work but not 19h to 2h in the tomorrow morning)
+
 
 ## Changelog
+
+Version 10
+ + Backup
 
 Version 9
  + Tutorial updated

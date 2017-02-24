@@ -31,7 +31,7 @@ channelID="YourChannelId"
 delayBeforeShutdown=0 			# in minutes
 
 # Do not modify
-ScriptVersion=9
+ScriptVersion=10
 RED='\033[0;31m'
 NC='\033[0m'
 
@@ -165,10 +165,19 @@ if [ "$currentTimestamp" -gt "$lastTimestamp" ]; then
     conan_stop
 	echo "[$(date +"%T")] Deleting appcache..."
 	rm -rf $SteamPath/appcache/
-	$SteamCmdPath/steamcmd.sh +@sSteamCmdForcePlatformType windows +force_install_dir $ConanPath +login anonymous +app_update 443030 validate +quit
 
+	echo "[$(date +"%T")] Backing up files..."
+	tarballName="configBackup_$(date +%Y-%m-%d_%H-%M).tar.gz"
+	mkdir -p $ConanPath/ConanBackups
+	tar -zcvf $ConanPath/ConanBackups/$tarballName -C $ConanPath/ConanSandbox/Saved .
+
+	$SteamCmdPath/steamcmd.sh +@sSteamCmdForcePlatformType windows +force_install_dir $ConanPath +login anonymous +app_update 443030 validate +quit
 	echo "[$(date +"%T")][SUCCESS] Update finished"
     echo "$currentTimestamp" > $ConanPath/lastUpdate
+
+    #echo "[$(date +"%T")] Restoring backup files..."
+	#tar -zxvf $ConanPath/ConanBackups/$tarballName -C $ConanPath/ConanSandbox/Saved
+
 	conan_start
 else
     echo "[$(date +"%T")][FAILED] No update found"
