@@ -8,7 +8,7 @@ user="steam"
 ConanPath="/home/$user/ConanServer"
 SteamCmdPath="/home/$user/steamcmd"
 SteamPath="/home/$user/Steam"
-discordScript="/home/$user/discord_bot.py"
+discordScript="/home/$user/conan_discord.py"
 
 # Server configuration
 IP="YourIp"
@@ -288,7 +288,7 @@ function conan_crontab {
 	re='^[0-9]+$'
 	isEdited=false
 
-	mkdir -p /home/$user/logs
+	mkdir -p /home/$user/logs/Conan
 	crontab -u $user -l > $tmp
 
 	echo -e "Enable ${RED}auto-restart${NC} ? (checks if there's no server running and start if needed). Enter a number of minutes between checks (0 to disable)"
@@ -302,7 +302,7 @@ function conan_crontab {
 	if [ ! "$restartTime" -eq 0 ]; then
 		isEdited=true
 		echo -e "${RED}Crontab:${NC} */$restartTime * * * * conan start >> /home/$user/logs/restarter_\`date +\%Y-\%m-\%d-cron\`.log"		
-		echo "*/$restartTime * * * * conan start >> /home/$user/logs/restarter_\`date +\%Y-\%m-\%d-cron\`.log" >> $tmp
+		echo "*/$restartTime * * * * conan start >> /home/$user/logs/Conan/restarter_\`date +\%Y-\%m-\%d-cron\`.log" >> $tmp
 	fi
 
 	echo -e "Enable ${RED}auto-updater${NC} ? (checks for update and if needed, apply and restart server). Enter a number of minutes between checks (0 to disable)"
@@ -316,7 +316,7 @@ function conan_crontab {
 	if [ ! "$updateTime" -eq 0 ]; then
 		isEdited=true
 		echo -e "${RED}Crontab:${NC} */$updateTime * * * * conan update >> /home/$user/logs/updater_\`date +\%Y-\%m-\%d-cron\`.log"
-		echo "*/$updateTime * * * * conan update >> /home/$user/logs/updater_\`date +\%Y-\%m-\%d-cron\`.log" >> $tmp
+		echo "*/$updateTime * * * * conan update >> /home/$user/logs/Conan/updater_\`date +\%Y-\%m-\%d-cron\`.log" >> $tmp
 	fi
 
 	echo -e "Enable ${RED}RaidHours${NC} ? (Player won't be able to destroy other buildings when Raids are disable). Enter a number of minutes between checks (0 to disable)"
@@ -330,12 +330,12 @@ function conan_crontab {
 	if [ ! "$raidHoursTime" -eq 0 ]; then
 		isEdited=true
 		echo -e "${RED}Crontab:${NC} */$raidHoursTime * * * * conan raidhours >> /home/$user/logs/raidhours_\`date +\%Y-\%m-\%d-cron\`.log"
-		echo "*/$raidHoursTime * * * * conan raidhours >> /home/$user/logs/raidhours_\`date +\%Y-\%m-\%d-cron\`.log" >> $tmp
+		echo "*/$raidHoursTime * * * * conan raidhours >> /home/$user/logs/Conan/raidhours_\`date +\%Y-\%m-\%d-cron\`.log" >> $tmp
 	fi
 
 	if [ "$isEdited" = true ]; then
 		crontab -u $user $tmp
-		echo -e "${RED}Crontabs edited${NC}, logs will be available in /home/$user/logs"
+		echo -e "${RED}Crontabs edited${NC}, logs will be available in /home/$user/logs/Conan"
 	fi
 
 	rm $tmp
