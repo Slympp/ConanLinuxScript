@@ -8,7 +8,7 @@ user="steam"
 ConanPath="/home/$user/ConanServer"
 SteamCmdPath="/home/$user/steamcmd"
 SteamPath="/home/$user/Steam"
-discordScript="discord_bot.py"
+discordScript="/home/$user/discord_bot.py"
 
 # Server configuration
 IP="YourIp"

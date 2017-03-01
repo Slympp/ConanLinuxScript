@@ -17,7 +17,7 @@ async def on_ready():
 		headers = { "Authorization":"Bot {}".format(botToken),
 	            "User-Agent":"Akylozor (http://akylonia.net, v0.1)",
 	            "Content-Type":"application/json", }
-		message = '[INFO] '
+		message = '[Conan Exiles] '
 		for x in sys.argv[3:]:
 			message += x + ' '
 		POSTedJSON =  json.dumps ( {"content":message} )
