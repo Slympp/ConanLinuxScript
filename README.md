@@ -1,5 +1,7 @@
 # Conan Linux Script
 
+### ⚠️ THIS PROJECT IS DISCONTINUED, FEEL FREE TO USE IT AS A RESOURCE TO MAKE YOUR OWN ⚠️
+
 ## Description
 
 Script made in order to make administration of a Conan Exiles server on Linux easy
@@ -12,10 +14,6 @@ Feel free to send your fixs/distro compatibilities/features by sending a pull re
 |:-------------:|:---------------:|:---------:|
 | Ubuntu      	| 16.04 *server*  | Supported |
 | Ubuntu      	| 16.04 *desktop* | Supported |
-
-Made by Slymp, for [Akylonia.net](http://akylonia.net "Akylonia website")
-
-Add me on [Steam](http://steamcommunity.com/id/Slymp/ "Steam") or join us on [Discord](https://discordapp.com/invite/7zbWQzU "Discord")
 
 
 ## Usage
